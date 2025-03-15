@@ -36,7 +36,7 @@ A modern and user-friendly ground control station interface for UAV aircraft con
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/adilmustafayilmaz/UAV-Ground-Control-System
+   git clone https://github.com/adilmustafayilmaz/UAV-Ground-Control-Station
    cd UAV-Ground-Control-System
    ```
 
