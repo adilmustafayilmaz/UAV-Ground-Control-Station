@@ -37,7 +37,7 @@ A modern and user-friendly ground control station interface for UAV aircraft con
 1. Clone the repository:
    ```bash
    git clone [repository-url]
-   cd pythonDevelopment
+   cd UAV-Ground-Control-System
    ```
 
 2. Install required dependencies:
@@ -91,11 +91,3 @@ The interface is built using:
 4. Push to the branch
 5. Create a new Pull Request
 
-## License
-
-[Add your license information here]
-
-## Note about Screenshots
-
-Place your application screenshot in the `assets` folder as `screenshot.png` to have it displayed in this README.
-This will provide a visual preview of the interface for users.
