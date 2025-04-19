@@ -65,7 +65,7 @@ class UAVControlInterface(QMainWindow):
         # Create logo label
         logo_label = QLabel()
         # Try to load the actual logo
-        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "logo.png")
+        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "APEX_LOGO_3.png")
         
         if os.path.exists(logo_path):
             pixmap = QPixmap(logo_path)
