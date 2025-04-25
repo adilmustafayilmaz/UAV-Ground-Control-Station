@@ -2,7 +2,7 @@
 
 A modern and user-friendly ground control station interface for UAV aircraft control and monitoring.
 
-![UAV Control Interface](assets/screenshot.png)
+![UAV Control Interface](assets/screenshot2.png)
 
 ## Features
 

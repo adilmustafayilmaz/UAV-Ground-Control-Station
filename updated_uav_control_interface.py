@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                             QHBoxLayout, QGridLayout, QLabel, QSlider, QPushButton, 
                             QGroupBox, QTabWidget, QComboBox, QFrame, QSplitter,
-                            QProgressBar, QDial, QSpinBox, QLineEdit)
+                            QProgressBar, QDial, QSpinBox, QLineEdit, QLayout)
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont, QColor, QPalette, QPixmap
 
@@ -15,6 +15,7 @@ class UAVControlInterface(QMainWindow):
     def initUI(self):
         self.setWindowTitle('UAV Control Interface')
         self.setGeometry(50, 50, 1600, 900)  # Pencere boyutunu artırıyorum, daha geniş ve yüksek
+        self.showMaximized()  # Uygulamayı tam ekran modunda başlat
         
         # Create central widget and main layout
         central_widget = QWidget()
@@ -39,6 +40,8 @@ class UAVControlInterface(QMainWindow):
         left_layout = QVBoxLayout(left_panel)
         self.create_login_panel(left_layout)  # New login panel
         self.create_control_panel(left_layout)
+        left_panel.setMinimumWidth(250)  # Set minimum width for control panel
+        left_panel.setMaximumWidth(300)  # Set maximum width for control panel
         content_splitter.addWidget(left_panel)
         
         # Right panel - Map/Camera View
@@ -47,9 +50,9 @@ class UAVControlInterface(QMainWindow):
         self.create_visualization_panel(right_layout)
         content_splitter.addWidget(right_panel)
         
-        # Set the splitter sizes - sol panel daha dar, sağ panel daha geniş
-        content_splitter.setSizes([300, 1300])
-        main_layout.addWidget(content_splitter)
+        # Set the splitter sizes - give much more space to the right visualization panel
+        content_splitter.setSizes([1, 5])  # 1:5 ratio
+        main_layout.addWidget(content_splitter, 1)  # Add stretch factor of 1
         
         # Bottom panel - Mission control & Emergency
         bottom_panel = QWidget()
@@ -220,8 +223,9 @@ class UAVControlInterface(QMainWindow):
         map_placeholder = QLabel("Map View")
         map_placeholder.setAlignment(Qt.AlignCenter)
         map_placeholder.setStyleSheet("background-color: #e0e0e0; border: 1px solid #999;")
-        map_placeholder.setMinimumHeight(350)  # Daha yüksek görünüm alanı
-        map_placeholder.setMinimumWidth(350)   # Minimum genişlik belirle
+        # Increase minimum sizes for larger display
+        map_placeholder.setMinimumHeight(400)  # Increased from 350
+        map_placeholder.setMinimumWidth(450)   # Increased from 350
         map_layout.addWidget(map_placeholder)
         views_splitter.addWidget(map_group)
         
@@ -232,18 +236,19 @@ class UAVControlInterface(QMainWindow):
         camera_placeholder = QLabel("Camera Feed")
         camera_placeholder.setAlignment(Qt.AlignCenter)
         camera_placeholder.setStyleSheet("background-color: black; color: white; border: 1px solid #999;")
-        camera_placeholder.setMinimumHeight(350)  # Daha yüksek görünüm alanı
-        camera_placeholder.setMinimumWidth(350)   # Minimum genişlik belirle
+        # Increase minimum sizes for larger display
+        camera_placeholder.setMinimumHeight(400)  # Increased from 350
+        camera_placeholder.setMinimumWidth(450)   # Increased from 350
         camera_layout.addWidget(camera_placeholder)
         views_splitter.addWidget(camera_group)
         
         # Set initial sizes for the views (equal distribution)
-        views_splitter.setSizes([450, 450])
+        views_splitter.setSizes([500, 500])  # Increased from 450, 450
         
-        # Add the views splitter to the layout
-        viz_layout.addWidget(views_splitter)
+        # Add the views splitter to the layout with stretch factor
+        viz_layout.addWidget(views_splitter, 1)  # Add stretch factor of 1
         
-        # Add position information
+        # Add position information (with reduced height)
         position_group = QGroupBox("Position Information")
         position_layout = QGridLayout(position_group)
         position_layout.setContentsMargins(5, 5, 5, 5)  # Kenarlık boşluklarını azalt
@@ -262,10 +267,12 @@ class UAVControlInterface(QMainWindow):
             value_label.setStyleSheet("font-weight: bold;")
             position_layout.addWidget(value_label, row, col*2+1)
         
-        viz_layout.addWidget(position_group)
+        # Add position group with fixed maximum height to give more space to map/camera
+        position_group.setMaximumHeight(60)  # Limit height of position information
+        viz_layout.addWidget(position_group, 0)  # No stretch factor
         
-        # Add the visualization container to the main layout
-        layout.addWidget(viz_container)
+        # Add the visualization container to the main layout with increased stretch
+        layout.addWidget(viz_container, 2)  # Increased stretch factor from 1 to 2
         
     def create_mission_panel(self, layout):
         # Create a tab widget for mission control
@@ -279,7 +286,7 @@ class UAVControlInterface(QMainWindow):
         top_section = QHBoxLayout()
         
         # Autonomous takeoff & landing (Left side)
-        takeoff_landing_group = QGroupBox("Takeoff & Landing")
+        takeoff_landing_group = QGroupBox("Takeoff And Landing")
         takeoff_landing_layout = QGridLayout(takeoff_landing_group)
         
         # Autonomous takeoff
@@ -303,18 +310,6 @@ class UAVControlInterface(QMainWindow):
         takeoff_landing_layout.addWidget(manual_landing_button, 1, 1)
         
         top_section.addWidget(takeoff_landing_group)
-        
-        # Target acquisition (Right side) - Güncellendi, manuel seçenek kaldırıldı
-        target_group = QGroupBox("Target Acquisition")
-        target_layout = QVBoxLayout(target_group)  # Grid yerine VBox kullanarak ortalama için
-        
-        # Sadece "Target Lock" butonu
-        target_lock_button = QPushButton("Target Lock")
-        target_lock_button.setStyleSheet("background-color: #FF9933; font-weight: bold;")
-        target_lock_button.setMinimumHeight(50)  # Daha büyük ve görünür bir buton
-        target_layout.addWidget(target_lock_button, alignment=Qt.AlignCenter)  # Ortalanmış
-        
-        top_section.addWidget(target_group)
         autonomous_layout.addLayout(top_section)
         
         # Bottom section: Create a horizontal layout for the second row of groups
@@ -343,20 +338,6 @@ class UAVControlInterface(QMainWindow):
         
         bottom_section.addWidget(route_group)
         
-        # Target tracking options (Right side) - Tracking Mode kısmı kaldırıldı
-        tracking_options_group = QGroupBox("Tracking Options")
-        tracking_options_layout = QHBoxLayout(tracking_options_group)  # Grid yerine HBox kullanıyoruz
-        
-        # Start tracking
-        start_tracking_button = QPushButton("Start Tracking")
-        start_tracking_button.setStyleSheet("background-color: #FF9933; font-weight: bold;")
-        tracking_options_layout.addWidget(start_tracking_button)
-        
-        # Stop tracking
-        stop_tracking_button = QPushButton("Stop Tracking")
-        tracking_options_layout.addWidget(stop_tracking_button)
-        
-        bottom_section.addWidget(tracking_options_group)
         autonomous_layout.addLayout(bottom_section)
         
         mission_tabs.addTab(autonomous_tab, "Autonomous Flight Control")
@@ -364,19 +345,83 @@ class UAVControlInterface(QMainWindow):
         # Add the mission tabs to the layout
         layout.addWidget(mission_tabs, 3)
         
-        # Emergency controls - Land Now butonu kaldırıldı
+        # Enemy Aircraft Selection Menu (Bottom right corner)
+        enemy_aircraft_group = QGroupBox("Enemy Aircraft Selection")
+        enemy_aircraft_layout = QVBoxLayout(enemy_aircraft_group)
+        
+        # Information label
+        info_label = QLabel("Select an aircraft to target:")
+        enemy_aircraft_layout.addWidget(info_label)
+        
+        # Sample aircraft data - in a real application, this would be populated from server data
+        aircraft_data = [
+            {"team_id": 1, "altitude": 1200, "speed": 80},
+            {"team_id": 2, "altitude": 950, "speed": 75},
+            {"team_id": 3, "altitude": 1500, "speed": 90},
+            {"team_id": 4, "altitude": 1100, "speed": 85}
+        ]
+        
+        # Create buttons for each aircraft (one aircraft, one button)
+        self.aircraft_buttons = []
+        for aircraft in aircraft_data:
+            aircraft_button = QPushButton(f"Team ID: {aircraft['team_id']} - Alt: {aircraft['altitude']}m - Speed: {aircraft['speed']}km/h")
+            aircraft_button.setCheckable(True)  # Make the button checkable
+            aircraft_button.setStyleSheet("text-align: left; padding-left: 10px;")
+            aircraft_button.clicked.connect(lambda checked, btn=aircraft_button: self.select_aircraft(btn))
+            self.aircraft_buttons.append(aircraft_button)
+            enemy_aircraft_layout.addWidget(aircraft_button)
+        
+        # Auto-select the first aircraft
+        if self.aircraft_buttons:
+            self.aircraft_buttons[0].setChecked(True)
+            self.current_aircraft = self.aircraft_buttons[0]
+        
+        # Submit button to lock onto selected aircraft
+        submit_button = QPushButton("LOCK TARGET")
+        submit_button.setStyleSheet("background-color: #FF9933; color: black; font-weight: bold; font-size: 13px;")
+        submit_button.setMinimumHeight(35)
+        enemy_aircraft_layout.addWidget(submit_button)
+        
+        # Add to layout (with smaller proportion than mission tabs)
+        layout.addWidget(enemy_aircraft_group, 1)
+        
+        # Emergency controls
         emergency_group = QGroupBox("Emergency Controls")
-        emergency_layout = QHBoxLayout(emergency_group)
+        emergency_layout = QVBoxLayout(emergency_group)  # Changed to vertical layout
         
         rtl_button = QPushButton("Return To Launch")
         rtl_button.setStyleSheet("background-color: orange;")
+        rtl_button.setMinimumHeight(60)  # Increased height
         emergency_layout.addWidget(rtl_button)
+        
+        kamikaze_button = QPushButton("KAMIKAZE")
+        kamikaze_button.setStyleSheet("background-color: #8B0000; color: white; font-weight: bold;")
+        kamikaze_button.setMinimumHeight(60)  # Increased height
+        emergency_layout.addWidget(kamikaze_button)
         
         emergency_button = QPushButton("EMERGENCY STOP")
         emergency_button.setStyleSheet("background-color: red; color: white; font-weight: bold;")
+        emergency_button.setMinimumHeight(60)  # Increased height
         emergency_layout.addWidget(emergency_button)
         
         layout.addWidget(emergency_group, 1)
+        
+    def select_aircraft(self, selected_button):
+        # Uncheck all other buttons
+        for button in self.aircraft_buttons:
+            if button != selected_button:
+                button.setChecked(False)
+        
+        # Store the currently selected aircraft
+        self.current_aircraft = selected_button
+        
+        # Highlight the selected button
+        selected_button.setStyleSheet("text-align: left; padding-left: 10px; background-color: #DDDDFF;")
+        
+        # Reset style for unselected buttons
+        for button in self.aircraft_buttons:
+            if button != selected_button:
+                button.setStyleSheet("text-align: left; padding-left: 10px;")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
